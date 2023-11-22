@@ -1,5 +1,4 @@
-﻿using Entities.Abstract;
-using Entities.Concrete;
+﻿using Core.Entities.Concrete;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Abstract
+namespace Core.DataAccess
 {
     //Generic constraint = generic kısıtlama
     //where T:class,IEntity = sadece IEntity olabilir ya da IEntity implemente edilen nesne olabilir
@@ -21,6 +20,6 @@ namespace DataAccess.Abstract
         void Add(T entity);
         void Update(T entity);
         void Delete(T entity);
-
+           
     }
 }
