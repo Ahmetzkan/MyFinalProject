@@ -17,7 +17,7 @@ namespace Business.Concrete
 
     
     public class ProductManager : IProductService
-    {
+    {   //[LogAspect] -->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.Burada tanımlandığında bütün class log'unu alır.
         //Bİr iş sınıfı başka sınıfları newlemez.Bundan dolayı böyle yapılır.
         IProductDal _productDal;
 
@@ -26,8 +26,12 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
+        //[LogAspect]-->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.
+        //[Validate]-[Performance]-RemoveCache]-[Transaction]
+
         public IResult Add(Product product)
         {
+            
             //Business codes
 
             if (product.ProductName.Length<2)
@@ -43,7 +47,7 @@ namespace Business.Concrete
 
         public IDataResult<List<Product>> GetAll()
         {
-            if (DateTime.Now.Hour == 22)
+            if (DateTime.Now.Hour == 19)
             {
                 return new ErrorDataResult<List<Product>>(Messages.MaintenanceTime);
             }
