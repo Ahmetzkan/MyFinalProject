@@ -11,11 +11,16 @@ using System.Threading.Tasks;
 using Entities.DTOs;
 using Core.Utilities.Results;
 using Business.Constans;
+using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using Business.ValidationRules.FluentValidation;
+using Core.CrossCuttingConcerns.Validation;
+using Core.Aspects.Autofac.Validation;
 
 namespace Business.Concrete
 {
 
-    
+
     public class ProductManager : IProductService
     {   //[LogAspect] -->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.Burada tanımlandığında bütün class log'unu alır.
         //Bİr iş sınıfı başka sınıfları newlemez.Bundan dolayı böyle yapılır.
@@ -26,23 +31,22 @@ namespace Business.Concrete
             _productDal = productDal;
         }
 
+        //Validation
+        //ValidationTool.Validate(new ProductValidator(), product);
         //[LogAspect]-->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.
         //[Validate]-[Performance]-RemoveCache]-[Transaction]
 
+
+
+        //Add metodunu (typeof(ProductValidator)) kurallarına göre doğrula
+        [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            
             //Business codes
+            _productDal.Add(product);
 
-            if (product.ProductName.Length<2)
-            {
-                //magic strings
-                return new ErrorResult(Messages.ProductNameInvalid);
-            }
-             _productDal.Add(product);
-
-             //Return olarak Add veremeyeceğimiz için Resultı newleyip verdik.Ve sonuç döndürüyoruz.
-             return new SuccessResult(Messages.ProductAdded);
+            //Return olarak Add veremeyeceğimiz için Resultı newleyip verdik.Ve sonuç döndürüyoruz.
+            return new SuccessResult(Messages.ProductAdded);
         }
 
         public IDataResult<List<Product>> GetAll()
@@ -57,18 +61,18 @@ namespace Business.Concrete
         public IDataResult<List<Product>> GetAllByCategoryId(int id)
         {
             //_productDal'dan gelen CategoryId parametre olarak gelen id eşitse bunu döndür
-            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p=>p.CategoryId==id));
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.CategoryId == id));
         }
 
         public IDataResult<Product> GetById(int productId)
         {
             //Get = ,İçerideki sorguya göre döndür denilebilir.   
-            return new SuccessDataResult<Product>(_productDal.Get(p=>p.ProductId == productId));
+            return new SuccessDataResult<Product>(_productDal.Get(p => p.ProductId == productId));
         }
 
         public IDataResult<List<Product>> GetByUnitPrice(decimal min, decimal max)
         {
-            return new SuccessDataResult<List<Product>> (_productDal.GetAll(p=>p.UnitPrice>=min && p.UnitPrice<=max));
+            return new SuccessDataResult<List<Product>>(_productDal.GetAll(p => p.UnitPrice >= min && p.UnitPrice <= max));
         }
 
         public IDataResult<List<ProductDetailDto>> GetProductDetails()
@@ -81,7 +85,7 @@ namespace Business.Concrete
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
         }
 
-     
+
     }
 }
 
