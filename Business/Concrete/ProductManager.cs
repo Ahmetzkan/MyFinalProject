@@ -16,36 +16,52 @@ using FluentValidation;
 using Business.ValidationRules.FluentValidation;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Aspects.Autofac.Validation;
+using Core.Utilities.Business;
 
 namespace Business.Concrete
 {
-
-
     public class ProductManager : IProductService
     {   //[LogAspect] -->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.Burada tanımlandığında bütün class log'unu alır.
         //Bİr iş sınıfı başka sınıfları newlemez.Bundan dolayı böyle yapılır.
         IProductDal _productDal;
+        ICategoryService _categoryService;
 
-        public ProductManager(IProductDal productDal)
+
+        public ProductManager(IProductDal productDal,ICategoryService categoryService)
         {
             _productDal = productDal;
+            _categoryService = categoryService;
         }
 
-        //Validation
-        //ValidationTool.Validate(new ProductValidator(), product);
         //[LogAspect]-->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.
-        //[Validate]-[Performance]-RemoveCache]-[Transaction]
-
-
-
+        //Attributelar typeof ile verilir
         //Add metodunu (typeof(ProductValidator)) kurallarına göre doğrula
         [ValidationAspect(typeof(ProductValidator))]
         public IResult Add(Product product)
         {
-            //Business codes
-            _productDal.Add(product);
+           IResult result =  BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+              CheckIfProductNameExists(product.ProductName),CheckIfCategoryLimitExceded());
 
-            //Return olarak Add veremeyeceğimiz için Resultı newleyip verdik.Ve sonuç döndürüyoruz.
+            if (result != null)
+            {
+                return result;
+            }
+            _productDal.Add(product);
+            return new SuccessResult(Messages.ProductAdded);
+
+        }
+
+        [ValidationAspect(typeof(ProductValidator))]
+        public IResult Delete(Product product)
+        {
+            IResult result = BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+              CheckIfProductNameExists(product.ProductName));
+
+            if (result != null)
+            {
+                return result;
+            }
+            _productDal.Delete(product);
             return new SuccessResult(Messages.ProductAdded);
         }
 
@@ -85,6 +101,50 @@ namespace Business.Concrete
             return new SuccessDataResult<List<ProductDetailDto>>(_productDal.GetProductDetails());
         }
 
+        [ValidationAspect(typeof(ProductValidator))]
+        public IResult Update(Product product)
+        {
+            IResult result = BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
+              CheckIfProductNameExists(product.ProductName));
+
+            if (result != null)
+            {
+                return result;
+            }
+            _productDal.Update(product);
+            return new SuccessResult(Messages.ProductUpdated);
+        }
+
+        private IResult CheckIfProductCountOfCategoryCorrect(int categoryId)
+        {
+            var result = _productDal.GetAll(p => p.CategoryId == categoryId).Count();
+            if (result >= 10)
+            {
+                return new ErrorResult(Messages.ProductCountOfCategoryError);
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfProductNameExists(string productName)
+        {
+            var result = _productDal.GetAll(p => p.ProductName == productName).Any();
+            if (result)
+            {
+                return new ErrorResult(Messages.CategoryLimitExceded);
+            }
+            return new SuccessResult();
+        }
+
+        private IResult CheckIfCategoryLimitExceded()
+        {
+            var result = _categoryService.GetAll();
+            if (result.Data.Count>15)
+            {
+                return new ErrorResult(Messages.CategoryLimitExceded);
+            }
+            return new SuccessResult();
+
+        }  
 
     }
 }

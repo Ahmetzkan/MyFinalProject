@@ -11,11 +11,13 @@ using Core.Utilities.Interceptors;
 
 namespace Core.Aspects.Autofac.Validation
 {
-    public class ValidationAspect : MethodInterception
+    //Aspect(MethodInterception) - metodun başı veya sonunda hata verdiğinde çalışacak method
+    public class ValidationAspect : MethodInterception 
     {
         private Type _validatorType;
         public ValidationAspect(Type validatorType)
         {
+            //defensive coding
             if (!typeof(IValidator).IsAssignableFrom(validatorType))
             {
                 throw new System.Exception("Thats not a verification class !");
