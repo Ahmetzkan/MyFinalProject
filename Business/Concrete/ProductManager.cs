@@ -37,7 +37,7 @@ namespace Business.Concrete
         //Add metodunu (typeof(ProductValidator)) kurallarına göre doğrula
         //Claim //Hash-Encryption //
         //Encryption = Geri dönüşü olan veri )>Decryption 
-
+         
         [ValidationAspect(typeof(ProductValidator))]
         [SecuredOperation("admin,product.add")]
         public IResult Add(Product product)
