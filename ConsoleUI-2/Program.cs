@@ -1,14 +1,20 @@
 ﻿using Business.Concrete;
+using Business.ValidationRules.FluentValidation;
 using DataAccess.Concrete.EntityFramework;
 using DataAccess.Concrete.InMemory;
 using Entities.Concrete;
 
 //SOLID
 //Open Closed Principle
-ProductTest();
+//ProductTest();
 //IoC
 //CategoryTest();
 //Data Transformantion Object
+
+//Type typeProduct = typeof(ProductValidator);
+//Console.WriteLine("ProductValidator türünün tipi: " + typeProduct);
+
+
 static void ProductTest()
 {
     ProductManager productManager = new ProductManager(new EfProductDal(),new CategoryManager(new EfCategoryDal()));

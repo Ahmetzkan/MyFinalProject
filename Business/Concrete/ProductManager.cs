@@ -17,6 +17,7 @@ using Business.ValidationRules.FluentValidation;
 using Core.CrossCuttingConcerns.Validation;
 using Core.Aspects.Autofac.Validation;
 using Core.Utilities.Business;
+using Business.BusinessAspects.Autofac;
 
 namespace Business.Concrete
 {
@@ -25,8 +26,6 @@ namespace Business.Concrete
         //Bİr iş sınıfı başka sınıfları newlemez.Bundan dolayı böyle yapılır.
         IProductDal _productDal;
         ICategoryService _categoryService;
-
-
         public ProductManager(IProductDal productDal,ICategoryService categoryService)
         {
             _productDal = productDal;
@@ -36,7 +35,11 @@ namespace Business.Concrete
         //[LogAspect]-->AOP.Bir metod hata verdiğinde çalışan kodlar AOP'dir.
         //Attributelar typeof ile verilir
         //Add metodunu (typeof(ProductValidator)) kurallarına göre doğrula
+        //Claim //Hash-Encryption //
+        //Encryption = Geri dönüşü olan veri )>Decryption 
+
         [ValidationAspect(typeof(ProductValidator))]
+        [SecuredOperation("admin,product.add")]
         public IResult Add(Product product)
         {
            IResult result =  BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
@@ -57,7 +60,7 @@ namespace Business.Concrete
             IResult result = BusinessRules.Run(CheckIfProductCountOfCategoryCorrect(product.CategoryId),
               CheckIfProductNameExists(product.ProductName));
 
-            if (result != null)
+            if (result != null) 
             {
                 return result;
             }

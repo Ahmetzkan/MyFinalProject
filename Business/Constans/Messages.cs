@@ -28,5 +28,14 @@ namespace Business.Constans
         //Category
         public static string CategoryLimitExceded = "Category Limit is exceded";
 
+        //User,Authorization
+        public static string UserNotFound = "User not found";
+        public static string PasswordError = "Password is wrong";
+        public static string SuccessfulLogin = "Login to the system successful";
+        public static string UserAlreadyExists = "This user already exists";
+        public static string UserRegistered = "User registered successfully";
+        public static string AccessTokenCreated = "Access token created successfullyu";
+        public static string AuthorizationDenied = "You don't have authorization";
+
     }
 }
