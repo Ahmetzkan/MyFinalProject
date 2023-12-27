@@ -14,10 +14,10 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 //Autofac,Ninject,CastleWindsor,StructureMap,LightInject,DryInject --> Ioc Container
 //Postsharp
 builder.Services.AddControllers();
+
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 var tokenOptions = builder.Configuration.GetSection("TokenOptions").Get<TokenOptions>();
@@ -41,18 +41,7 @@ ServiceTool.Create(builder.Services);
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//Arkaplanda referans istenirse diye; 1.isterse,2.yi ver mantýðýyla
-//bu þekilde yapýyoruz.
-//Tüm bellekte bir tane singleton ve manager oluþturyor.
-//1 mn client da gelse ayný referansý veriyor.
-//Singleton ise içerisinde data yoksa kullanýlýr.
-
-//builder.Services.AddSingleton<IProductService, ProductManager>(); 
-//builder.Services.AddSingleton<IProductDal, EfProductDal>();
-
-
-//builder.Services.AddSingleton<IProductService, ProductManager>();
-//builder.Services.AddSingleton<IProductDal, EfProductDal>();
+builder.Services.AddCors(opt => opt.AddDefaultPolicy(p => { p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader(); }));
 
 
 
@@ -67,7 +56,6 @@ builder.Host
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -77,10 +65,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();//Middleware
-
-
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors(opt => opt.WithOrigins("http://localhost:3000") .AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
 app.Run();
